@@ -77,4 +77,4 @@ for how to set the model list and spending limits.
 - [Harness setup](docs/harnesses.md)
 - [Configuration](docs/configuration.md)
 - [How routing works](docs/routing.md)
-- [Training a local router](docs/training.md)
+- [Training a local router](docs/training.md) — trained on WormsDestruction skills (100 iters, 4 layers); adapter saved at `adapters/router/`; eval accuracy 51.3% (39/76)

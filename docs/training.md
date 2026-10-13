@@ -33,6 +33,52 @@ python3 -m venv .venv
 Needs Apple Silicon. The default base model, `mlx-community/Qwen2.5-1.5B-Instruct-4bit`, fits in 8 GB of
 RAM. Training is slow on a machine that is also doing other work.
 
+## Example training run (on WormsDestruction)
+
+1. **Scan skills**
+   ```sh
+   python3 skills/train-router/scripts/scan_skills.py ~/WormsDestruction --out data/skills.json
+   ```
+
+2. **Generate data** (this was run once to produce all examples below)
+   ```sh
+   python3 skills/train-router/scripts/make_dataset.py data/skills.json --out data/ --per-skill 25 --negatives 40 --max-calls 30
+   ```
+   → `train.jsonl` (685 examples), `valid.jsonl` (76 examples), 29 API calls, ~36k tokens.
+
+3. **Train** with reduced settings to fit in 8 GB RAM
+   ```sh
+   .venv/bin/python skills/train-router/scripts/train.py \
+     --data data/ \
+     --adapter adapters/router \
+     --iters 100 \
+     --layers 4 \
+     --batch-size 1
+   ```
+   Saved adapter: `adapters/router/0000100_adapters.safetensors` (≈5 MB).
+
+4. **Evaluate**
+   ```sh
+   .venv/bin/python skills/train-router/scripts/evaluate.py \
+     --data data/ \
+     --adapter adapters/router \
+     --base mlx-community/Qwen2.5-1.5B-Instruct-4bit
+   ```
+   Accuracy: **51.3%** (39/76 correct on the validation set).
+
+## Typical results
+
+| Label type | Count correct / total |
+| --- | --- |
+| skills that match intent | 25 / 35 |
+| skills that match literal keywords | 14 / 30 |
+| `none` (no skill fits) | 0 / 11 |
+
+Accuracy on generated data is optimistic (labels came from a model). Check against real prompts: see
+`tests/cases.json` and `routing-log.jsonl`.
+
+Adding or renaming a skill changes the label set; regenerate the data and retrain.
+
 ## Serving the trained adapter
 
 ```sh
