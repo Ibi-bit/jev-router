@@ -1,0 +1,21 @@
+{
+  "skill_dirs": ["~/jev-router/test-skills"],
+  "hook_skill_dirs": [".agents/skills", ".claude/skills", ".codex/skills", ".gemini/skills", ".opencode/skills"],
+  "hook_top_k": 3,
+  "default_model_key": "fast",
+  "models": {
+    "fast": {"id": "openrouter/anthropic/claude-haiku-5.5", "description": "quick general answers, cheap"},
+    "code": {"id": "openrouter/anthropic/claude-haiku-5.5", "description": "writing and debugging code (budget: uses fast model)"},
+    "deep": {"id": "openrouter/anthropic/claude-haiku-5.5", "description": "hard reasoning (budget: uses fast model)"},
+    "cheap_code": {"id": "openrouter/~deepseek/deepseek-flash-latest", "description": "very cheap coding help, $0.04/$0.77 per M tokens"},
+    "cheap_general": {"id": "openrouter/google/gemma-4-31b-it", "description": "very cheap general Q&A and explanations, $0.09/$0.34 per M tokens"},
+    "cheap_long": {"id": "openrouter/z-ai/glm-4.5-air", "description": "very cheap longer coding tasks, $0.13/$0.85 per M tokens"},
+    "free_general": {"id": "openrouter/openrouter/free", "description": "completely free general purpose (best for single-step answers)"},
+    "free_code": {"id": "openrouter/cohere/north-mini-code:free", "description": "completely free coding assistance"}
+  },
+  "jev": {
+    "url": "https://openrouter.ai/api/alpha/decisions",
+    "model": "typesafe/jev-1.13",
+    "timeout_s": 30
+  }
+}

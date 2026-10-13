@@ -1,0 +1,16 @@
+{
+  "hooks": {
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 \"$HOME/jev-router/router.py\" --hook --harness codex",
+            "timeoutSec": 30,
+            "statusMessage": "Jev routing"
+          }
+        ]
+      }
+    ]
+  }
+}

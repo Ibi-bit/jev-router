@@ -1,0 +1,11 @@
+[
+  {"prompt": "Plot a histogram of the age column in this CSV file", "expected_skill": "test-python-plotting"},
+  {"prompt": "Make a bar chart of monthly sales with matplotlib", "expected_skill": "test-python-plotting"},
+  {"prompt": "Can you review this pull request for security bugs?", "expected_skill": "test-code-review"},
+  {"prompt": "Audit this function and find problems in the source code", "expected_skill": "test-code-review"},
+  {"prompt": "Write a PostgreSQL query that joins orders to customers and sums totals per region", "expected_skill": "test-sql-queries"},
+  {"prompt": "This MySQL query is slow, add an index to speed it up", "expected_skill": "test-sql-queries"},
+  {"prompt": "Proofread my essay and fix the grammar in this paragraph", "expected_skill": "test-writing-edit"},
+  {"prompt": "Rewrite this email to sound more polite", "expected_skill": "test-writing-edit"},
+  {"prompt": "What is the capital of Australia?", "expected_skill": null}
+]

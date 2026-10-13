@@ -1,0 +1,11 @@
+{
+  "hooks": {
+    "UserPromptSubmit": [
+      {
+        "type": "command",
+        "command": "python3 $HOME/jev-router/router.py --hook --harness vscode",
+        "timeout": 30
+      }
+    ]
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "version": 1,
+  "hooks": {
+    "beforeSubmitPrompt": [
+      {
+        "command": "python3 \"$HOME/jev-router/router.py\" --hook --harness cursor",
+        "timeout": 30
+      }
+    ]
+  }
+}

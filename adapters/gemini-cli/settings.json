@@ -1,0 +1,16 @@
+{
+  "hooks": {
+    "BeforeAgent": [
+      {
+        "hooks": [
+          {
+            "name": "jev-router",
+            "type": "command",
+            "command": "python3 \"$HOME/jev-router/router.py\" --hook --harness gemini",
+            "timeout": 30000
+          }
+        ]
+      }
+    ]
+  }
+}
