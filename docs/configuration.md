@@ -12,6 +12,8 @@ Settings live in `config.json` next to `router.py`.
 | `jev.url` | Jev decision endpoint. |
 | `jev.model` | Jev model name. |
 | `jev.timeout_s` | Seconds to wait for Jev before falling back. |
+| `decider` | Who picks the skill. `{"type": "jev"}` (default) uses the Jev API. `{"type": "local", "url", "model", "model_key", "timeout_s"}` uses a trained adapter served by mlx-lm. See [training.md](training.md). |
+| `dataset_model` | OpenRouter model used by `train-router` to generate training prompts. |
 
 ## Models
 

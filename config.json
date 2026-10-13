@@ -2,6 +2,8 @@
   "skill_dirs": ["~/jev-router/test-skills"],
   "hook_skill_dirs": [".agents/skills", ".claude/skills", ".codex/skills", ".gemini/skills", ".opencode/skills"],
   "hook_top_k": 3,
+  "dataset_model": "anthropic/claude-haiku-5.5",
+  "decider": {"type": "jev"},
   "default_model_key": "fast",
   "models": {
     "fast": {"id": "openrouter/anthropic/claude-haiku-5.5", "description": "quick general answers, cheap"},

@@ -3,3 +3,6 @@ __pycache__/
 routing-log.jsonl
 .env
 node_modules/
+.venv/
+data/
+adapters/

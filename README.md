@@ -8,6 +8,10 @@ A prompt router for AI coding agents. For each prompt it:
 
 Every decision is appended to `routing-log.jsonl`.
 
+The Jev call can be replaced by a local model trained on your own skills. The `train-router` skill
+(`skills/train-router/`) scans the skills, generates labelled prompts, trains a LoRA adapter with
+mlx-lm on your Mac, and reports accuracy. See [docs/training.md](docs/training.md).
+
 ## Supported harnesses
 
 | Harness | Adapter | Can switch model | Can add skill context | Status |
@@ -47,9 +51,11 @@ test-skills/           example skills for testing
 tests/
   test_hooks.py        offline tests for every harness's hook output
   test_router.py       hook and Jev accuracy on tests/cases.json
+  test_local_decider.py  offline tests for the trained-adapter decider
   cases.json           labelled prompts
 adapters/              per-harness config files and the OpenCode plugin
-docs/                  harness setup, configuration, routing behaviour
+skills/train-router/   skill and scripts that build and train the local router
+docs/                  harness setup, configuration, routing behaviour, training
 ```
 
 ## Cost
@@ -63,3 +69,4 @@ for how to set the model list and spending limits.
 - [Harness setup](docs/harnesses.md)
 - [Configuration](docs/configuration.md)
 - [How routing works](docs/routing.md)
+- [Training a local router](docs/training.md)

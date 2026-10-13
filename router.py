@@ -112,6 +112,30 @@ def jev_decide(prompt, candidates, skills):
     return chosen, answer["confidence"]
 
 
+def local_decide(prompt, skills):
+    """Ask a locally served adapter (mlx-lm server) for the skill name, or None."""
+    cfg = CONFIG["decider"]
+    listing = "\n".join(f"- {s['name']}: {s['description']}" for s in sorted(skills.values(), key=lambda s: s["name"]))
+    system = (
+        f"Available skills:\n{listing}\n"
+        "Answer with exactly one skill name from this list, or 'none' if no skill fits."
+    )
+    body = json.dumps({
+        "model": cfg["model"],
+        "messages": [{"role": "system", "content": system}, {"role": "user", "content": prompt}],
+        "max_tokens": 12,
+        "temperature": 0,
+    }).encode()
+    req = urllib.request.Request(cfg["url"], data=body, headers={"Content-Type": "application/json"})
+    with urllib.request.urlopen(req, timeout=cfg.get("timeout_s", 10)) as resp:
+        answer = json.load(resp)["choices"][0]["message"]["content"].strip()
+    if answer == "none":
+        return None
+    if answer not in skills:
+        raise ValueError(f"unknown local skill: {answer!r}")
+    return answer
+
+
 def route(prompt, skill_dirs=None):
     start = time.time()
     skills = load_skills(skill_dirs)
@@ -122,11 +146,19 @@ def route(prompt, skill_dirs=None):
         "hook_candidates": picks,
         "hook_pick": picks[0] if picks else None,
     }
-    try:
-        chosen, confidence = jev_decide(prompt, picks, skills)
-        record.update(jev_skill=chosen["skill"], model_key=chosen["model"], jev_confidence=confidence, fallback=False, error=None)
-    except Exception as exc:  # Jev down or bad answer: default model, no skill
-        record.update(jev_skill=None, model_key=CONFIG["default_model_key"], fallback=True, error=str(exc))
+    if CONFIG.get("decider", {}).get("type") == "local":
+        try:
+            skill = local_decide(prompt, skills)
+            model_key = CONFIG["decider"].get("model_key", CONFIG["default_model_key"])
+            record.update(jev_skill=skill, model_key=model_key, jev_confidence=None, fallback=False, error=None)
+        except Exception as exc:  # local server down or bad answer: default model, no skill
+            record.update(jev_skill=None, model_key=CONFIG["default_model_key"], fallback=True, error=str(exc))
+    else:
+        try:
+            chosen, confidence = jev_decide(prompt, picks, skills)
+            record.update(jev_skill=chosen["skill"], model_key=chosen["model"], jev_confidence=confidence, fallback=False, error=None)
+        except Exception as exc:  # Jev down or bad answer: default model, no skill
+            record.update(jev_skill=None, model_key=CONFIG["default_model_key"], fallback=True, error=str(exc))
 
     model_key = record["model_key"]
     skill = record["jev_skill"]

@@ -7,7 +7,12 @@ For each prompt:
 2. **Keyword candidates.** `hook_pick` scores each skill: 2 points per prompt word that matches the
    skill's name (ignoring words shared by every skill name), and 1 point per word that matches its
    description. The top `hook_top_k` skills with a score above zero are kept.
-3. **Jev decision.** The router sends the prompt and every (skill, model) combination to Jev as
+3. **Skill decision.** Two deciders exist, chosen by `decider.type` in `config.json`.
+   - `jev` (default): the Jev decision described below.
+   - `local`: a trained adapter served by mlx-lm answers with one skill name or `none`. It picks no model;
+     the model comes from `decider.model_key`. See [training.md](training.md).
+
+   **Jev decision.** The router sends the prompt and every (skill, model) combination to Jev as
    `o1 … oN` options. Jev returns the chosen option and a confidence. The skill-free option is always
    included.
 4. **Fallback.** If the key is missing, the request fails, or Jev returns an unknown choice, the router
