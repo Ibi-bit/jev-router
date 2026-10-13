@@ -3,14 +3,22 @@
 A prompt router for AI coding agents. For each prompt it:
 
 1. Scores the installed skills against the prompt with cheap keyword matching.
-2. Asks the Jev decision API to pick one skill and one model from a short list.
+2. Asks the Jev decision API (or a local trained model) to pick one skill and one model from a short list.
 3. Switches the model (OpenCode only) and adds the skill's instructions to the prompt.
 
 Every decision is appended to `routing-log.jsonl`.
 
-The Jev call can be replaced by a local model trained on your own skills. The `train-router` skill
-(`skills/train-router/`) scans the skills, generates labelled prompts, trains a LoRA adapter with
-mlx-lm on your Mac, and reports accuracy. See [docs/training.md](docs/training.md).
+## 🧠 The "Local Brain" Feature
+
+Instead of calling an external API (Jev) to decide which skill to use, **you can train a local model on your own codebase.** 
+
+The included `train-router` skill allows you to:
+1. **Scan** your project for all available `SKILL.md` files.
+2. **Generate** a synthetic training dataset of prompts based on those skills.
+3. **Train** a specialized "router model" (LoRA adapter) locally on your Mac.
+4. **Run** the router entirely offline, replacing the Jev API with a local model that understands your specific project's capabilities.
+
+This turns your router from a general-purpose tool into a specialist for your specific repository. See [docs/training.md](docs/training.md) for the full pipeline.
 
 ## Supported harnesses
 
