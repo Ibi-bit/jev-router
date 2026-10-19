@@ -4,7 +4,7 @@ Settings live in `config.json` next to `router.py`.
 
 | Key | Meaning |
 | --- | --- |
-| `models` | Map of model keys to `{id, description}`. Jev picks one key per prompt. The `id` is the `provider/model` string OpenCode switches to. |
+| `models` | Map of model keys to `{id, description, price_in, price_out, thinking}`. The decider picks one key per prompt. The `id` is the `provider/model` string OpenCode switches to. `price_in`/`price_out` are USD per million tokens (prompt/completion) and are shown to the decider so it can weigh cost against quality. `thinking` marks models that accept a reasoning level. |
 | `default_model_key` | Model key used when Jev fails or the API key is missing. |
 | `skill_dirs` | Directories scanned for skills, for the CLI (`~` is expanded). |
 | `hook_skill_dirs` | Project-relative directories scanned by hooks, relative to the prompt's `cwd`. |
@@ -14,6 +14,7 @@ Settings live in `config.json` next to `router.py`.
 | `jev.timeout_s` | Seconds to wait for Jev before falling back. |
 | `decider` | Who picks the skill. `{"type": "jev"}` (default) uses the Jev API. `{"type": "local", "url", "model", "model_key", "timeout_s"}` uses a trained adapter served by mlx-lm. See [training.md](training.md). |
 | `dataset_model` | OpenRouter model used by `train-router` to generate training prompts. |
+| `thinking` | `{"default", "levels"}`. Levels Jev can pick (`none`, `low`, `medium`, `high`) and the fallback `default`. Jev answers this as a second question in the same call. Only models with `"thinking": true` in `models` get a level; the level is passed to OpenCode as the model variant. |
 
 ## Models
 

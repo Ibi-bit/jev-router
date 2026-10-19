@@ -4,20 +4,30 @@
   "hook_top_k": 3,
   "dataset_model": "anthropic/claude-haiku-5.5",
   "decider": {"type": "jev"},
-  "default_model_key": "fast",
+  "default_model_key": "glm",
+  "thinking": {
+    "default": "none",
+    "levels": {
+      "none": "no extra reasoning; cheapest, use for simple lookups and short answers",
+      "low": "light reasoning; small multi-step tasks",
+      "medium": "moderate reasoning; debugging and non-trivial code changes",
+      "high": "deep reasoning; hard problems, costs the most tokens"
+    }
+  },
   "models": {
-    "fast": {"id": "openrouter/anthropic/claude-haiku-5.5", "description": "quick general answers, cheap"},
-    "code": {"id": "openrouter/anthropic/claude-haiku-5.5", "description": "writing and debugging code (budget: uses fast model)"},
-    "deep": {"id": "openrouter/anthropic/claude-haiku-5.5", "description": "hard reasoning (budget: uses fast model)"},
-    "cheap_code": {"id": "openrouter/~deepseek/deepseek-flash-latest", "description": "very cheap coding help, $0.04/$0.77 per M tokens"},
-    "cheap_general": {"id": "openrouter/google/gemma-4-31b-it", "description": "very cheap general Q&A and explanations, $0.09/$0.34 per M tokens"},
-    "cheap_long": {"id": "openrouter/z-ai/glm-4.5-air", "description": "very cheap longer coding tasks, $0.13/$0.85 per M tokens"},
-    "free_general": {"id": "openrouter/openrouter/free", "description": "completely free general purpose (best for single-step answers)"},
-    "free_code": {"id": "openrouter/cohere/north-mini-code:free", "description": "completely free coding assistance"}
+    "glm": {"id": "openrouter/z-ai/glm-5.3-flash", "description": "best overall model, default for everything", "price_in": 0.048, "price_out": 0.16, "thinking": false},
+    "fast": {"id": "openrouter/anthropic/claude-haiku-5.5", "description": "quick general answers, cheap", "price_in": 0.10, "price_out": 0.50, "thinking": true},
+    "code": {"id": "openrouter/anthropic/claude-haiku-5.5", "description": "writing and debugging code (budget: uses fast model)", "price_in": 0.10, "price_out": 0.50, "thinking": true},
+    "deep": {"id": "openrouter/anthropic/claude-haiku-5.5", "description": "hard reasoning (budget: uses fast model)", "price_in": 0.10, "price_out": 0.50, "thinking": true},
+    "cheap_code": {"id": "openrouter/~deepseek/deepseek-flash-latest", "description": "very cheap coding help", "price_in": 0.041, "price_out": 0.60, "thinking": false},
+    "cheap_general": {"id": "openrouter/google/gemma-4-31b-it", "description": "very cheap general Q&A and explanations", "price_in": 0.20, "price_out": 0.40, "thinking": false},
+    "cheap_long": {"id": "openrouter/z-ai/glm-4.5-air", "description": "very cheap longer coding tasks", "price_in": 0.13, "price_out": 0.85, "thinking": false},
+    "free_general": {"id": "openrouter/openrouter/free", "description": "worst quality, free general purpose (single-step answers only)", "price_in": 0, "price_out": 0, "thinking": false},
+    "free_code": {"id": "openrouter/cohere/north-mini-code:free", "description": "worst quality, free coding assistance", "price_in": 0, "price_out": 0, "thinking": false}
   },
   "jev": {
     "url": "https://openrouter.ai/api/alpha/decisions",
-    "model": "typesafe/jev-1.13",
+    "model": "~perplexity/pplx-decider-flash-latest",
     "timeout_s": 30
   }
 }

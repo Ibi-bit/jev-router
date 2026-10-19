@@ -50,7 +50,7 @@ class LocalDeciderTests(unittest.TestCase):
     def test_route_uses_local_when_configured(self):
         with mock.patch.object(router, "LOG", Path("/dev/null")), \
                 mock.patch.object(router, "load_skills", return_value=SKILLS), fake_server("ponytail"):
-            record, _ = router.route("be lazy")
+            record, _, _ = router.route("be lazy")
         self.assertFalse(record["fallback"])
         self.assertEqual(record["model_key"], "fast")
 
