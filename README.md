@@ -8,6 +8,39 @@ A prompt router for AI coding agents. For each prompt it:
 
 Every decision is appended to `routing-log.jsonl`, and the OpenCode plugin also logs per-call token usage and cost there. Routing takes the session's context size into account: switching models re-reads the whole context at full input price, so staying on the current model is often cheapest. See [docs/routing.md](docs/routing.md).
 
+## Example
+
+**Input** — a prompt in an OpenCode session:
+
+> Fix the failing import in tests/test_router.py
+
+The router scores the installed skills against the prompt, then the decider picks a skill, a model, a thinking level and a mode. `router.py` prints the same decision the plugin applies:
+
+```json
+{
+  "hook_candidates": ["test-writing-edit"],
+  "hook_pick": "test-writing-edit",
+  "jev_skill": null,
+  "model_key": "code",
+  "model": "openrouter/anthropic/claude-haiku-5.5",
+  "thinking": "low",
+  "mode": "subagent",
+  "fallback": false,
+  "error": null,
+  "latency_ms": 778
+}
+```
+
+No skill was needed, so the prompt runs unchanged — but as a **subagent**: a fresh session on the chosen model (`claude-haiku-5.5`, thinking `low`) with none of the earlier messages.
+
+**Output** — the plugin spawns the subagent, which investigates, fixes the bug and verifies it; the main session then checks the fix before accepting it:
+
+![OpenCode routing a prompt: the decider's pick is applied, a subagent on claude-haiku-5.5 investigates and fixes the bug, and the main session verifies it](docs/images/opencode-example.png)
+
+The run took ~27 seconds and cost $0.000414, both appended to `routing-log.jsonl` next to the decision above. As a bonus, the subagent found and fixed a real bug: `tests/test_router.py` was still unpacking `route()`'s original 2-tuple, but `route()` now returns a 3-tuple `(record, final_prompt, subagent_prompt)` since subagent mode was added.
+
+In `inline` mode the same fields apply, but the prompt is rewritten in the current session instead of spawning a subagent. If the decider is unreachable, `fallback` is `true` and the router uses `default_model_key` with no skill — it never blocks a prompt.
+
 ## 🧠 The "Local Brain" Feature
 
 Instead of calling an external API (Jev) to decide which skill to use, **you can train a local model on your own codebase.** 
@@ -19,6 +52,15 @@ The included `train-router` skill allows you to:
 4. **Run** the router entirely offline, replacing the Jev API with a local model that understands your specific project's capabilities.
 
 This turns your router from a general-purpose tool into a specialist for your specific repository. See [docs/training.md](docs/training.md) for the full pipeline.
+
+## Skill selection and subagents
+
+- **Shortlist.** Each skill (`*/SKILL.md`) is scored against the prompt: 2 points per matching word in its name, 1 per matching word in its description. The top `hook_top_k` (default 3) are kept.
+- **Decision.** The decider (`decider.type` in `config.json`) picks one skill and one model. `jev` is the default. `local` uses a trained adapter and picks a skill only. Jev also picks a thinking level (none, low, medium, high).
+- **Inline or subagent.** Jev chooses `inline` (the skill is prepended to the session prompt) or `subagent`. A subagent runs the prompt in a fresh session on the chosen model, with no earlier messages, and its answer is appended to the session. It suits self-contained questions and avoids re-reading a long session on a different model.
+- **Fallback.** If the decider is unavailable, the router uses `default_model_key` with no skill.
+
+See [docs/routing.md](docs/routing.md) for the full flow, including session-aware pricing.
 
 ## Supported harnesses
 

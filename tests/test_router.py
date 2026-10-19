@@ -32,7 +32,7 @@ def main():
 
         jev_pick = "-"
         if not args.offline:
-            record, _ = router.route(case["prompt"])
+            record, _, _ = router.route(case["prompt"])
             jev_pick = record["jev_skill"] if not record["fallback"] else "FALLBACK"
             jev_ok += jev_pick == expected
 
