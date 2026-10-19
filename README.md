@@ -3,10 +3,10 @@
 A prompt router for AI coding agents. For each prompt it:
 
 1. Scores the installed skills against the prompt with cheap keyword matching.
-2. Asks the Jev decision API (or a local trained model) to pick one skill and one model from a short list.
-3. Switches the model (OpenCode only) and adds the skill's instructions to the prompt.
+2. Asks the Jev decision API (or a local trained model) to pick one skill and one model from a short list. Jev also picks a thinking level (`none`, `low`, `medium`, `high`) and whether to run inline or in a subagent.
+3. Switches the model and thinking level (OpenCode only), adds the skill's instructions to the prompt, or runs the prompt in a fresh subagent session.
 
-Every decision is appended to `routing-log.jsonl`.
+Every decision is appended to `routing-log.jsonl`, and the OpenCode plugin also logs per-call token usage and cost there. Routing takes the session's context size into account: switching models re-reads the whole context at full input price, so staying on the current model is often cheapest. See [docs/routing.md](docs/routing.md).
 
 ## 🧠 The "Local Brain" Feature
 
@@ -24,7 +24,7 @@ This turns your router from a general-purpose tool into a specialist for your sp
 
 | Harness | Adapter | Can switch model | Can add skill context | Status |
 | --- | --- | --- | --- | --- |
-| OpenCode | [`adapters/opencode/index.ts`](adapters/opencode/index.ts) | Yes | Yes (rewrites the prompt) | Loads; per-prompt routing not yet confirmed end to end |
+| OpenCode | [`adapters/opencode/index.ts`](adapters/opencode/index.ts) | Yes, plus thinking level | Yes (rewrites the prompt); subagent mode | Loads; per-prompt routing not yet confirmed end to end |
 | VS Code (Copilot agent hooks) | [`adapters/vscode/hooks.json`](adapters/vscode/hooks.json) | No | Advisory message only | Hook runs from the CLI; not checked in a live VS Code session |
 | Claude Code | [`adapters/claude-code/settings.json`](adapters/claude-code/settings.json) | No | Yes, as `additionalContext` | Output shape from docs; not run in a live session |
 | Codex CLI | [`adapters/codex/hooks.json`](adapters/codex/hooks.json) | No | Yes, as `additionalContext` | Output shape from docs; not run in a live session |
@@ -47,7 +47,7 @@ python3 ~/jev-router/router.py "Add a pause screen to the game"
 
 Then install the adapter for your harness. See [docs/harnesses.md](docs/harnesses.md).
 
-If `OPENROUTER_API_KEY` is missing or the Jev call fails, the router uses `default_model_key` and
+If `OPENROUTER_API_KEY` is missing or the Jev call fails, the router uses `default_model_key` (currently `glm`) and
 no skill. It never blocks a prompt.
 
 ## Layout
@@ -69,7 +69,8 @@ docs/                  harness setup, configuration, routing behaviour, training
 ## Cost
 
 Only the models listed in `config.json` can be chosen, and Jev only ever picks from that list.
-Each prompt makes one Jev call plus one call to the chosen model. See [docs/configuration.md](docs/configuration.md)
+Each prompt makes one Jev call plus one call to the chosen model (subagent mode runs that call in a fresh session).
+The default model is `glm`, and the decider is `~perplexity/pplx-decider-flash-latest`. See [docs/configuration.md](docs/configuration.md)
 for how to set the model list and spending limits.
 
 ## Docs
