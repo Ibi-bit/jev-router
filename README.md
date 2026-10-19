@@ -34,6 +34,50 @@ This turns your router from a general-purpose tool into a specialist for your sp
 Hook-based harnesses only let a hook observe the prompt. They cannot change the model, so for them
 the router only suggests a skill and model. Only OpenCode applies the decision.
 
+## Skills
+
+A skill is a folder containing a `SKILL.md` file. The router reads every `*/SKILL.md` under the directories
+listed in `skill_dirs` in `config.json`:
+
+```
+test-skills/
+  test-code-review/
+    SKILL.md
+```
+
+Each `SKILL.md` starts with YAML frontmatter. The `name` and `description` fields are used for matching,
+and the text after the frontmatter is the skill body:
+
+```markdown
+---
+name: test-code-review
+description: Review code for bugs, security issues and style problems. Use when asked to review a pull request, audit a function or find problems in source code.
+---
+
+Review the code and list findings as bugs, security issues and style notes, most serious first.
+```
+
+When a skill is picked, the prompt becomes the skill body, then `---`, then `Task:` and the original prompt.
+Hook-based harnesses only show the skill name as a suggestion in `additionalContext`.
+
+Hook adapters also scan the project-level `hook_skill_dirs` (`.agents/skills`, `.claude/skills`,
+`.codex/skills`, `.gemini/skills`, `.opencode/skills`), so skills installed for each harness are found.
+
+## Subagents
+
+The decider can run a prompt in a **subagent** instead of inline. This is chosen per prompt (`mode`
+`m2`), and it is best for self-contained questions that don't need the earlier messages in the session.
+
+1. The router sends the subagent only the question, plus the skill body if one was picked. It does not
+   send the session history.
+2. The OpenCode plugin creates a fresh session (`jev-router subagent`) on the chosen model, with the
+   chosen thinking level, and waits for it to finish. The wait times out after 300 seconds.
+3. The subagent's answer is appended to the session prompt, so the main session sees the result.
+4. If the subagent fails or times out, the prompt is sent unchanged and the error is logged.
+
+Subagent runs log their own usage and cost in `routing-log.jsonl`, the same as inline runs. Hook
+adapters cannot create sessions, so they only report `mode` as advice.
+
 ## Quick start
 
 Requirements: Python 3.9+, and `OPENROUTER_API_KEY` in the environment.
